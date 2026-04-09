@@ -1,0 +1,21 @@
+{
+    "name": "2026 立山黑部全線時刻表",
+    "short_name": "Alpine Route",
+    "description": "2026 立山黑部阿爾卑斯路線即時時刻表與倒數",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#f9fafb",
+    "theme_color": "#1e3a8a",
+    "icons": [
+        {
+            "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e3a8a'><path d='M12 3l-9 15h18z'/></svg>",
+            "sizes": "192x192",
+            "type": "image/svg+xml"
+        },
+        {
+            "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e3a8a'><path d='M12 3l-9 15h18z'/></svg>",
+            "sizes": "512x512",
+            "type": "image/svg+xml"
+        }
+    ]
+}

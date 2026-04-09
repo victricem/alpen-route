@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>2026 立山黑部全線即時時刻表</title>
     
-    <!-- PWA & iOS Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    
     <meta name="theme-color" content="#1e3a8a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,25 +14,10 @@
     <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e3a8a'><path d='M12 3l-9 15h18z'/></svg>">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        .bg-alpine { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #3b82f6 100%); }
-        .next-bus-card { animation: pulse-subtle 3s infinite; }
-        @keyframes pulse-subtle {
-            0%, 100% { transform: translateY(0); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
-            50% { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
-        }
-        /* Hide scrollbar for clean UI */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-50 min-h-screen">
 
-    <!-- Header -->
     <header class="bg-alpine text-white p-6 shadow-lg sticky top-0 z-50 pt-safe">
         <div class="max-w-md mx-auto flex justify-between items-start">
             <div>
@@ -39,14 +25,12 @@
                 <p class="text-blue-200 text-xs mt-1 font-semibold tracking-wider uppercase" data-i18n="app_subtitle">Alpine Route 2026</p>
             </div>
             <div class="flex flex-col items-end gap-2">
-                <!-- Language Selector -->
                 <select id="lang-select" onchange="changeLanguage(this.value)" class="bg-white/20 text-white border border-white/30 rounded-lg px-2 py-1 text-[10px] font-bold outline-none cursor-pointer hover:bg-white/30 transition-colors">
                     <option value="zh-TW" class="text-gray-800">繁體中文</option>
                     <option value="ja" class="text-gray-800">日本語</option>
                     <option value="en" class="text-gray-800">English</option>
                     <option value="zh-CN" class="text-gray-800">简体中文</option>
                 </select>
-                <!-- Time & Date -->
                 <div class="text-right bg-black/20 px-2 py-1.5 rounded-lg backdrop-blur-sm border border-white/10">
                     <div id="current-time" class="text-lg leading-none font-mono font-bold tracking-widest">--:--:--</div>
                     <div id="current-date" class="text-[9px] text-blue-100 uppercase tracking-widest mt-1 text-right"></div>
@@ -57,7 +41,6 @@
 
     <main class="max-w-md mx-auto p-4 pb-24">
         
-        <!-- Travel Date Selector -->
         <div class="mb-4 bg-white p-3.5 rounded-xl shadow-sm border-2 border-indigo-100 flex justify-between items-center">
             <label class="text-xs font-bold text-indigo-800 flex items-center tracking-wider">
                 <svg class="w-4 h-4 mr-1.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
@@ -66,7 +49,6 @@
             <input type="date" id="travel-date" class="text-sm font-black text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-lg outline-none px-3 py-1.5 cursor-pointer hover:bg-indigo-100 transition-colors" onchange="onDateChange()">
         </div>
 
-        <!-- Station Selector -->
         <div class="mb-5 relative">
             <label class="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider flex items-center">
                 <svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -89,14 +71,10 @@
             </div>
         </div>
 
-        <!-- Route Buttons (Dynamic) -->
         <div id="route-buttons" class="flex gap-2 mb-6">
-            <!-- JS Injected Buttons -->
-        </div>
+            </div>
 
-        <!-- Next Departure Countdown -->
         <div id="countdown-card" class="next-bus-card bg-white rounded-2xl shadow-lg p-6 mb-6 border-t-4 border-blue-600 relative overflow-hidden transition-all duration-300">
-            <!-- Decorative background element -->
             <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-50 rounded-full opacity-50 pointer-events-none"></div>
             
             <h2 class="text-gray-500 text-sm font-bold mb-3 flex items-center uppercase tracking-wide">
@@ -119,7 +97,6 @@
             </div>
         </div>
 
-        <!-- Full Timetable -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden relative">
             <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center relative z-40">
                 <h3 id="timetable-title" class="font-bold text-gray-800 flex items-center text-sm">
@@ -129,7 +106,6 @@
                 <span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-1 rounded font-bold tracking-wider">2026</span>
             </div>
             
-            <!-- Legend for special markers -->
             <div id="timetable-legend" class="px-4 py-3 bg-white border-b border-gray-100 text-[10px] text-gray-600 flex flex-col gap-2 relative z-40">
                 <div class="flex flex-wrap gap-x-3 gap-y-2">
                     <span class="flex items-center"><span class="w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center mr-1 scale-90 font-bold">●</span> <span data-i18n="l_spec">指定日</span></span>
@@ -147,7 +123,6 @@
                 </div>
             </div>
 
-            <!-- Table Container -->
             <div class="max-h-80 overflow-y-auto bg-white relative">
                 <table class="w-full text-left border-collapse" id="timetable-table">
                     <thead id="timetable-head" class="relative z-30">
@@ -157,15 +132,13 @@
                         </tr>
                     </thead>
                     <tbody id="timetable-body" class="divide-y divide-gray-100 relative z-0">
-                        <!-- JS injected here -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </div>
 
     </main>
 
-    <!-- Footer Menu -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-2 flex justify-around items-center md:hidden pb-safe z-50">
         <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center p-2 text-blue-600">
             <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
@@ -177,468 +150,8 @@
         </button>
     </nav>
 
-    <script>
-        // --- 多國語系字典 (i18n) ---
-        const i18n = {
-            'zh-TW': {
-                app_title: "立山黑部時刻表", app_subtitle: "Alpine Route 2026",
-                travel_date: "預定乘車日期", select_station: "選擇當前所在車站",
-                st_ogizawa: "🚉 扇澤站 (Ogizawa)", st_kurobe_dam: "🌊 黑部水庫 (Kurobe Dam)",
-                st_kurobeko: "🛳️ 黑部湖 (Kurobeko)", st_kurobedaira: "⛰️ 黑部平 (Kurobedaira)",
-                st_daikanbo: "🔭 大觀峰 (Daikanbo)", st_murodo: "❄️ 室堂 (Murodo)",
-                st_bijodaira: "🌲 美女平 (Bijodaira)", st_tateyama: "🚉 立山車站 (Tateyama)",
-                th_h: "時 (H)", th_m: "發車分鐘 (Minutes)", f_top: "置頂", f_refresh: "重新對時",
-                l_spec: "指定日", l_peak: "旺季", l_holi: "特定假日", l_wd: "平日限定", l_we: "假日限定",
-                l_cal: "2026 特殊運轉日曆：", l_d1: "5/2-5, 7/18-19, 8/11-15, 9/19-22, 10/10-11",
-                l_d2: "4/15-5/15 及上方全部指定日", l_d3: "特定期間內的週末與日本國定假日",
-                l_hint: "💡 系統會依據您選擇的乘車日期，自動將當天沒有營運的班次變成灰色並劃上刪除線。",
-                c_next: "下一班車發車倒數", c_prev: "模擬預覽", c_time: "發車時間", c_end: "今日結束",
-                c_tmr: "明日請早", c_stat: "出發狀態", c_est: "預估時間", c_ready: "隨時出發",
-                c_15m: "約 15 分鐘", c_not_today: "非今日",
-                w_title: "此區段為徒步專區", w_desc: "兩站之間距離約 600 公尺<br><span class='text-emerald-600 font-bold'>無須等待班次，隨時可出發！</span>",
-                t_full: "完整時刻表",
-                dir_bijo_murodo: "往 美女平/室堂", dir_toyama: "往 電鐵富山", dir_murodo_daikanbo: "往 室堂/大觀峰",
-                dir_tateyama: "往 立山車站", dir_daikanbo_ogi: "往 大觀峰/扇澤", dir_kurobe_ogi: "往 黑部平/扇澤",
-                dir_murodo_tate: "往 室堂/立山", dir_kurobeko_ogi: "往 黑部湖/扇澤", dir_daikanbo_tate: "往 大觀峰/立山",
-                dir_dam_ogi: "往 扇澤", dir_kurobeko_tate: "往 黑部平/立山", dir_omachi: "往 信濃大町/長野",
-                dir_dam_tate: "往 黑部水庫/立山", dir_kurobeko: "往 黑部湖",
-                sub_east: "順行・東向", sub_west: "逆行・西向", sub_down: "下山",
-                v_t_cable: "立山登山纜車", v_t_train: "富山地方鐵道", v_t_bus: "立山高原巴士",
-                v_t_ev: "立山隧道電動巴士", v_ropeway: "立山架空索道", v_k_cable: "黑部登山纜車",
-                v_walk: "徒步約 15 分鐘", v_k_ev: "關電隧道電動巴士", v_ex_bus: "路線/特急巴士"
-            },
-            'zh-CN': {
-                app_title: "立山黑部时刻表", app_subtitle: "Alpine Route 2026",
-                travel_date: "预定乘车日期", select_station: "选择当前所在车站",
-                st_ogizawa: "🚉 扇泽站 (Ogizawa)", st_kurobe_dam: "🌊 黑部水库 (Kurobe Dam)",
-                st_kurobeko: "🛳️ 黑部湖 (Kurobeko)", st_kurobedaira: "⛰️ 黑部平 (Kurobedaira)",
-                st_daikanbo: "🔭 大观峰 (Daikanbo)", st_murodo: "❄️ 室堂 (Murodo)",
-                st_bijodaira: "🌲 美女平 (Bijodaira)", st_tateyama: "🚉 立山车站 (Tateyama)",
-                th_h: "时 (H)", th_m: "发车分钟 (Minutes)", f_top: "置顶", f_refresh: "重新对时",
-                l_spec: "指定日", l_peak: "旺季", l_holi: "特定假日", l_wd: "平日限定", l_we: "假日限定",
-                l_cal: "2026 特殊运转日历：", l_d1: "5/2-5, 7/18-19, 8/11-15, 9/19-22, 10/10-11",
-                l_d2: "4/15-5/15 及上方全部指定日", l_d3: "特定期间内的周末与日本国定假日",
-                l_hint: "💡 系统会依据您选择的乘车日期，自动将当天没有运营的班次变成灰色并划上删除线。",
-                c_next: "下一班车发车倒数", c_prev: "模拟预览", c_time: "发车时间", c_end: "今日结束",
-                c_tmr: "明日请早", c_stat: "出发状态", c_est: "预估时间", c_ready: "随时出发",
-                c_15m: "约 15 分钟", c_not_today: "非今日",
-                w_title: "此区段为徒步专区", w_desc: "两站之间距离约 600 公尺<br><span class='text-emerald-600 font-bold'>无须等待班次，随时可出发！</span>",
-                t_full: "完整时刻表",
-                dir_bijo_murodo: "往 美女平/室堂", dir_toyama: "往 电铁富山", dir_murodo_daikanbo: "往 室堂/大观峰",
-                dir_tateyama: "往 立山车站", dir_daikanbo_ogi: "往 大观峰/扇泽", dir_kurobe_ogi: "往 黑部平/扇泽",
-                dir_murodo_tate: "往 室堂/立山", dir_kurobeko_ogi: "往 黑部湖/扇泽", dir_daikanbo_tate: "往 大观峰/立山",
-                dir_dam_ogi: "往 扇泽", dir_kurobeko_tate: "往 黑部平/立山", dir_omachi: "往 信浓大町/长野",
-                dir_dam_tate: "往 黑部水库/立山", dir_kurobeko: "往 黑部湖",
-                sub_east: "顺行・东向", sub_west: "逆行・西向", sub_down: "下山",
-                v_t_cable: "立山登山缆车", v_t_train: "富山地方铁道", v_t_bus: "立山高原巴士",
-                v_t_ev: "立山隧道电动巴士", v_ropeway: "立山架空索道", v_k_cable: "黑部登山缆车",
-                v_walk: "徒步约 15 分钟", v_k_ev: "关电隧道电动巴士", v_ex_bus: "路线/特急巴士"
-            },
-            'ja': {
-                app_title: "立山黒部時刻表", app_subtitle: "アルペンルート 2026",
-                travel_date: "乗車予定日", select_station: "現在の駅を選択",
-                st_ogizawa: "🚉 扇沢駅 (Ogizawa)", st_kurobe_dam: "🌊 黒部ダム (Kurobe Dam)",
-                st_kurobeko: "🛳️ 黒部湖 (Kurobeko)", st_kurobedaira: "⛰️ 黒部平 (Kurobedaira)",
-                st_daikanbo: "🔭 大観峰 (Daikanbo)", st_murodo: "❄️ 室堂 (Murodo)",
-                st_bijodaira: "🌲 美女平 (Bijodaira)", st_tateyama: "🚉 立山駅 (Tateyama)",
-                th_h: "時 (H)", th_m: "発車分 (Minutes)", f_top: "トップ", f_refresh: "更新",
-                l_spec: "指定日", l_peak: "繁忙期", l_holi: "特定休日", l_wd: "平日限定", l_we: "休日限定",
-                l_cal: "2026年 特別運行カレンダー：", l_d1: "5/2-5, 7/18-19, 8/11-15, 9/19-22, 10/10-11",
-                l_d2: "4/15-5/15 および上記全指定日", l_d3: "特定期間の土日祝",
-                l_hint: "💡 選択された乗車日に応じて、運休となる便は自動的にグレーアウト（取消線）されます。",
-                c_next: "次の発車まで", c_prev: "プレビュー", c_time: "発車時刻", c_end: "本日終了",
-                c_tmr: "明日ご利用ください", c_stat: "ステータス", c_est: "予想時間", c_ready: "いつでも出発可能",
-                c_15m: "約 15 分", c_not_today: "本日以外",
-                w_title: "この区間は徒歩です", w_desc: "駅間距離 約600m<br><span class='text-emerald-600 font-bold'>待ち時間なし、いつでも出発可能！</span>",
-                t_full: "全時刻表",
-                dir_bijo_murodo: "美女平・室堂 方面", dir_toyama: "電鉄富山 方面", dir_murodo_daikanbo: "室堂・大観峰 方面",
-                dir_tateyama: "立山駅 方面", dir_daikanbo_ogi: "大観峰・扇沢 方面", dir_kurobe_ogi: "黒部平・扇沢 方面",
-                dir_murodo_tate: "室堂・立山 方面", dir_kurobeko_ogi: "黒部湖・扇沢 方面", dir_daikanbo_tate: "大観峰・立山 方面",
-                dir_dam_ogi: "扇沢 方面", dir_kurobeko_tate: "黒部平・立山 方面", dir_omachi: "信濃大町・長野 方面",
-                dir_dam_tate: "黒部ダム・立山 方面", dir_kurobeko: "黒部湖 方面",
-                sub_east: "順行・東行", sub_west: "逆行・西行", sub_down: "下山",
-                v_t_cable: "立山ケーブルカー", v_t_train: "富山地方鉄道", v_t_bus: "立山高原バス",
-                v_t_ev: "立山トンネル電気バス", v_ropeway: "立山ロープウェイ", v_k_cable: "黒部ケーブルカー",
-                v_walk: "徒歩約15分", v_k_ev: "関電トンネル電気バス", v_ex_bus: "路線・特急バス"
-            },
-            'en': {
-                app_title: "Alpine Timetable", app_subtitle: "Tateyama Kurobe 2026",
-                travel_date: "Travel Date", select_station: "Select Station",
-                st_ogizawa: "🚉 Ogizawa", st_kurobe_dam: "🌊 Kurobe Dam",
-                st_kurobeko: "🛳️ Kurobeko", st_kurobedaira: "⛰️ Kurobedaira",
-                st_daikanbo: "🔭 Daikanbo", st_murodo: "❄️ Murodo",
-                st_bijodaira: "🌲 Bijodaira", st_tateyama: "🚉 Tateyama Sta.",
-                th_h: "Hour", th_m: "Minutes", f_top: "Top", f_refresh: "Refresh",
-                l_spec: "Specified", l_peak: "Peak", l_holi: "Holidays", l_wd: "Weekdays", l_we: "Weekends",
-                l_cal: "2026 Special Calendar:", l_d1: "5/2-5, 7/18-19, 8/11-15, 9/19-22, 10/10-11",
-                l_d2: "4/15-5/15 & all specified days above", l_d3: "Weekends/Holidays in specific periods",
-                l_hint: "💡 The system automatically grays out canceled services based on your selected date.",
-                c_next: "Next Departure in", c_prev: "Preview", c_time: "Departure Time", c_end: "Ended Today",
-                c_tmr: "Try Tomorrow", c_stat: "Status", c_est: "Est. Time", c_ready: "Go Anytime",
-                c_15m: "~15 mins", c_not_today: "Not Today",
-                w_title: "Walking Zone", w_desc: "Distance approx. 600m<br><span class='text-emerald-600 font-bold'>No waiting, ready to go!</span>",
-                t_full: "Full Timetable",
-                dir_bijo_murodo: "For Bijodaira/Murodo", dir_toyama: "For Dentetsu Toyama", dir_murodo_daikanbo: "For Murodo/Daikanbo",
-                dir_tateyama: "For Tateyama Sta.", dir_daikanbo_ogi: "For Daikanbo/Ogizawa", dir_kurobe_ogi: "For Kurobedaira/Ogizawa",
-                dir_murodo_tate: "For Murodo/Tateyama", dir_kurobeko_ogi: "For Kurobeko/Ogizawa", dir_daikanbo_tate: "For Daikanbo/Tateyama",
-                dir_dam_ogi: "For Ogizawa", dir_kurobeko_tate: "For Kurobedaira/Tateyama", dir_omachi: "For Shinano-Omachi/Nagano",
-                dir_dam_tate: "For Kurobe Dam/Tateyama", dir_kurobeko: "For Kurobeko",
-                sub_east: "Eastbound", sub_west: "Westbound", sub_down: "Downhill",
-                v_t_cable: "Tateyama Cable Car", v_t_train: "Dentetsu Toyama Train", v_t_bus: "Tateyama Highland Bus",
-                v_t_ev: "Tateyama Electric Bus", v_ropeway: "Tateyama Ropeway", v_k_cable: "Kurobe Cable Car",
-                v_walk: "15 min walk", v_k_ev: "Kanden Electric Bus", v_ex_bus: "Local/Express Bus"
-            }
-        };
-
-        // 2026 立山黑部全線時刻表資料 (改用 i18n Key)
-        const schedules = {
-            'tateyama': [
-                { dirId: 'east', dirKey: 'dir_bijo_murodo', subKey: 'sub_east', vehKey: 'v_t_cable', times: ['06:40|◇', '07:00', '07:20', '07:40', '08:00', '08:20', '08:40', '09:00', '09:20', '09:40', '10:00', '10:20', '10:40', '11:00', '11:20', '11:40', '12:00', '12:20', '12:40', '13:00', '13:20', '13:40', '14:00', '14:20', '14:40', '15:00', '15:20', '15:40', '16:00'] },
-                { dirId: 'west', dirKey: 'dir_toyama', subKey: 'sub_down', vehKey: 'v_t_train', times: ['07:27|▽', '07:47|▼', '08:07|▽', '08:27|▼', '08:47|▽', '09:07|▼', '09:17|▽', '09:32|▼', '09:47|▽', '10:03|▼', '10:27|▽', '10:38|▼', '10:47|▽', '11:00|▼', '11:27|▽', '11:45|▼', '11:47|▽', '12:00|▼', '12:27|▽', '12:45|▼', '12:47|▽', '13:00|▼', '13:27|▽', '13:45|▼', '13:47|▽', '14:00|▼', '14:27|▽', '14:45|▼', '14:47|▽', '15:00|▼', '15:27|▽', '15:33|▼', '15:47|▽', '16:06|▼', '16:27|▽', '16:35|▼', '16:47|▽', '17:05|▼', '17:27|▽', '17:40', '18:07|▽', '18:13|▼', '18:43|▽', '18:57|▼', '19:13|▽', '19:31|▼', '19:43|▽', '19:57|▼', '20:13|▽', '20:31|▼', '20:43|▽'] }
-            ],
-            'bijodaira': [
-                { dirId: 'east', dirKey: 'dir_murodo_daikanbo', subKey: 'sub_east', vehKey: 'v_t_bus', times: ['07:00|◇', '07:40', '08:10', '08:20', '08:50', '09:00', '09:30', '09:40', '10:10', '10:20', '10:50', '11:00', '11:30', '11:40', '12:30', '12:40', '13:10', '13:20', '13:50', '14:00', '14:30', '14:40', '15:10', '15:20', '16:00', '16:30', '16:40'] },
-                { dirId: 'west', dirKey: 'dir_tateyama', subKey: 'sub_west', vehKey: 'v_t_cable', times: ['07:20', '07:40', '08:00', '08:20', '08:40', '09:00', '09:10', '09:20', '09:40', '10:00', '10:10', '10:20', '10:40', '10:50', '11:00', '11:20', '11:30', '11:40', '12:00', '12:10', '12:20', '12:40', '12:50', '13:00', '13:20', '13:40', '13:50', '14:00', '14:20', '14:30', '14:40', '15:00', '15:10', '15:20', '15:40', '15:50', '16:00', '16:20', '16:30', '16:40', '17:00', '17:10', '17:20', '18:00|◇'] }
-            ],
-            'murodo': [
-                { dirId: 'east', dirKey: 'dir_daikanbo_ogi', subKey: 'sub_east', vehKey: 'v_t_ev', times: ['08:15', '08:45', '09:15', '09:45', '10:15', '10:45', '11:15', '11:45', '12:15', '12:45', '13:15', '13:45', '14:15', '14:45', '15:15', '15:45', '16:10', '16:30'] },
-                { dirId: 'west', dirKey: 'dir_bijo_murodo', subKey: 'sub_west', vehKey: 'v_t_bus', times: ['08:10', '08:40', '09:20', '10:00', '10:40', '11:20', '12:00', '13:00', '13:40', '14:20', '15:00', '15:40', '16:20', '17:00|◇'] }
-            ],
-            'daikanbo': [
-                { dirId: 'east', dirKey: 'dir_kurobe_ogi', subKey: 'sub_east', vehKey: 'v_ropeway', times: ['08:30', '08:50', '09:10', '09:30', '09:50', '10:10', '10:30', '10:50', '11:10', '11:30', '11:50', '12:20', '12:40', '13:00', '13:20', '13:40', '14:00', '14:20', '14:40', '15:00', '15:20', '15:30', '15:50', '16:15', '16:30', '16:45'] },
-                { dirId: 'west', dirKey: 'dir_murodo_tate', subKey: 'sub_west', vehKey: 'v_t_ev', times: ['07:45', '08:15|●', '08:45', '09:15', '09:45', '10:15', '10:45', '11:15', '11:45', '12:15', '12:45', '13:15', '13:45', '14:15', '14:45', '15:15', '15:45', '16:00', '16:30'] }
-            ],
-            'kurobedaira': [
-                { dirId: 'east', dirKey: 'dir_kurobeko_ogi', subKey: 'sub_east', vehKey: 'v_k_cable', times: ['08:50', '09:10', '09:30', '09:50', '10:10', '10:30', '10:50', '11:10', '11:30', '12:00', '12:20', '12:40', '13:00', '13:20', '13:40', '14:00', '14:20', '14:40', '15:00', '15:20', '15:40', '16:00', '16:30', '16:45', '17:00'] },
-                { dirId: 'west', dirKey: 'dir_daikanbo_tate', subKey: 'sub_west', vehKey: 'v_ropeway', times: ['07:30', '08:10|●', '08:30', '08:50', '09:10', '09:30', '09:50', '10:10', '10:30', '10:50', '11:10', '11:30', '11:50', '12:20', '12:40', '13:00', '13:20', '13:40', '14:00', '14:20', '14:40', '15:00', '15:30', '15:50', '16:15'] }
-            ],
-            'kurobeko': [
-                { dirId: 'east', dirKey: 'dir_dam_ogi', subKey: 'sub_east', vehKey: 'v_walk', isWalk: true, times: [] },
-                { dirId: 'west', dirKey: 'dir_kurobeko_tate', subKey: 'sub_west', vehKey: 'v_k_cable', times: ['07:10', '07:50|●', '08:10', '08:30', '08:50', '09:10', '09:30', '09:50', '10:10', '10:30', '10:50', '11:10', '11:30', '12:00', '12:20', '12:40', '13:00', '13:20', '13:40', '14:00', '14:20', '14:40', '15:00', '15:20', '15:40', '16:00'] }
-            ],
-            'kurobe_dam': [
-                { dirId: 'east', dirKey: 'dir_dam_ogi', subKey: 'sub_east', vehKey: 'v_k_ev', times: ['07:05|●', '07:35|●', '08:05', '08:35', '09:05', '09:35', '10:05', '10:35', '11:05', '11:35', '12:05', '12:35', '13:05', '13:35', '14:05', '14:35', '15:05', '15:35', '16:05', '16:35', '17:05', '17:35'] },
-                { dirId: 'west', dirKey: 'dir_dam_tate', subKey: 'sub_west', vehKey: 'v_walk', isWalk: true, times: [] }
-            ],
-            'ogizawa': [
-                { dirId: 'east', dirKey: 'dir_omachi', subKey: 'sub_down', vehKey: 'v_ex_bus', times: ['07:05', '07:45', '09:00', '09:30|※', '09:55', '10:30', '10:55|※', '11:25', '12:00|※', '12:30', '13:40', '14:30', '14:40|※', '15:15', '15:35|※', '16:10', '16:35', '17:00', '17:55'] },
-                { dirId: 'west', dirKey: 'dir_dam_tate', subKey: 'sub_west', vehKey: 'v_k_ev', times: ['06:30', '07:00|●', '07:30', '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'] }
-            ]
-        };
-
-        // --- 狀態管理與 i18n 函式 ---
-        let currentLang = localStorage.getItem('alpine_lang') || 'zh-TW';
-        let currentStationId = 'ogizawa';
-        let currentRouteIndex = 0;
-        let selectedTravelDate = new Date();
-
-        function t(key) {
-            return i18n[currentLang][key] || key;
-        }
-
-        function changeLanguage(lang) {
-            currentLang = lang;
-            localStorage.setItem('alpine_lang', lang);
-            document.getElementById('lang-select').value = lang;
-            
-            // 更新靜態 HTML 的語系
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if(i18n[lang] && i18n[lang][key]) {
-                    el.innerHTML = i18n[lang][key];
-                }
-            });
-
-            // 重新渲染動態區塊
-            renderRouteButtons();
-            renderTimetable();
-            updateCountdown();
-        }
-
-        // --- 核心日期判斷邏輯 ---
-        const holidays2026 = ['04-29', '05-03', '05-04', '05-05', '05-06', '07-20', '08-11', '09-21', '09-22', '09-23', '10-12', '11-03', '11-23'];
-        const specifiedDays = ['05-02','05-03','05-04','05-05','07-18','07-19','08-11','08-12','08-13','08-14','08-15','09-19','09-20','09-21','09-22','10-10','10-11'];
-
-        function isWeekendOrHoliday(dateObj) {
-            const day = dateObj.getDay();
-            if (day === 0 || day === 6) return true;
-            const mmdd = String(dateObj.getMonth() + 1).padStart(2, '0') + '-' + String(dateObj.getDate()).padStart(2, '0');
-            return holidays2026.includes(mmdd);
-        }
-
-        function isTimeValidToday(mark, dateObj) {
-            if (!mark) return true; 
-            const mmdd = String(dateObj.getMonth() + 1).padStart(2, '0') + '-' + String(dateObj.getDate()).padStart(2, '0');
-            const m = dateObj.getMonth() + 1;
-            const d = dateObj.getDate();
-
-            switch(mark) {
-                case '●': return specifiedDays.includes(mmdd);
-                case '◇': return ((m === 4 && d >= 15) || (m === 5 && d <= 15)) || specifiedDays.includes(mmdd);
-                case '※': 
-                    if (!isWeekendOrHoliday(dateObj)) return false;
-                    return ((m === 4 && d >= 15) || m === 5) || ((m === 7 && d >= 11) || m === 8) || (m >= 9 && m <= 11);
-                case '▽': return !isWeekendOrHoliday(dateObj); // 平日
-                case '▼': return isWeekendOrHoliday(dateObj); // 假日
-                default: return true;
-            }
-        }
-
-        function initDate() {
-            const now = new Date();
-            const routeOpenDate = new Date('2026-04-15T00:00:00');
-            if (now < routeOpenDate) {
-                selectedTravelDate = routeOpenDate;
-            }
-            const yyyy = selectedTravelDate.getFullYear();
-            const mm = String(selectedTravelDate.getMonth() + 1).padStart(2, '0');
-            const dd = String(selectedTravelDate.getDate()).padStart(2, '0');
-            document.getElementById('travel-date').value = `${yyyy}-${mm}-${dd}`;
-        }
-
-        function onDateChange() {
-            const inputDate = document.getElementById('travel-date').value;
-            if (inputDate) {
-                const [y, m, d] = inputDate.split('-');
-                selectedTravelDate = new Date(y, m - 1, d);
-                renderTimetable();
-                updateCountdown();
-            }
-        }
-
-        function onStationChange() {
-            currentStationId = document.getElementById('station-select').value;
-            currentRouteIndex = 0;
-            renderRouteButtons();
-            onRouteChange(0);
-        }
-
-        function renderRouteButtons() {
-            const container = document.getElementById('route-buttons');
-            const routes = schedules[currentStationId];
-            
-            container.innerHTML = routes.map((route, index) => {
-                const isActive = index === currentRouteIndex;
-                const activeClass = "bg-blue-600 text-white border-blue-600 shadow-md ring-2 ring-blue-300 ring-offset-1";
-                const inactiveClass = "bg-white text-gray-500 border-gray-200 hover:bg-gray-50 hover:border-gray-300";
-                
-                return `
-                    <button onclick="onRouteChange(${index})" class="flex-1 py-3 px-2 rounded-xl text-sm font-bold transition-all border-2 flex flex-col items-center justify-center ${isActive ? activeClass : inactiveClass}">
-                        <div class="text-[10px] ${isActive ? 'text-blue-200' : 'text-gray-400'} mb-1 font-black bg-black/10 px-2 py-0.5 rounded-full">${t(route.subKey)}</div>
-                        ${t(route.dirKey)}
-                        <span class="text-[10px] ${isActive ? 'text-blue-100' : 'text-gray-400'} font-normal tracking-wide inline-block mt-0.5">${t(route.vehKey)}</span>
-                    </button>
-                `;
-            }).join('');
-        }
-
-        function onRouteChange(index) {
-            currentRouteIndex = index;
-            renderRouteButtons();
-            
-            const currentRoute = schedules[currentStationId][currentRouteIndex];
-            const vehicleEl = document.getElementById('route-vehicle');
-            vehicleEl.innerText = t(currentRoute.vehKey);
-            
-            if(currentRoute.isWalk) {
-                vehicleEl.className = "bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm border border-emerald-200";
-            } else {
-                vehicleEl.className = "bg-blue-100 text-blue-800 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm border border-blue-200";
-            }
-
-            document.getElementById('table-title-text').innerText = `${t('t_full')} (${t(currentRoute.dirKey)})`;
-
-            renderTimetable();
-            updateCountdown();
-        }
-
-        function getBadgeColor(mark) {
-            if (mark === '●') return 'bg-red-500';
-            if (mark === '◇') return 'bg-pink-500';
-            if (mark === '※') return 'bg-purple-500';
-            if (mark === '▽') return 'bg-blue-500';
-            if (mark === '▼') return 'bg-orange-500';
-            return 'bg-gray-500';
-        }
-
-        function renderTimetable() {
-            const container = document.getElementById('timetable-body');
-            const headContainer = document.getElementById('timetable-head');
-            const legendContainer = document.getElementById('timetable-legend');
-            const currentRoute = schedules[currentStationId][currentRouteIndex];
-
-            if (currentRoute.isWalk) {
-                headContainer.style.display = 'none';
-                legendContainer.style.display = 'none';
-                container.innerHTML = `
-                    <tr>
-                        <td colspan="2" class="px-6 py-10 text-center text-gray-500">
-                            <svg class="w-14 h-14 mx-auto mb-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 5a2 2 0 11-4 0 2 2 0 014 0zM7 11.5l3 3V22M17 11.5l-3 3V22M12 14.5L12 22"></path></svg>
-                            <p class="font-bold text-lg text-gray-800 mb-1">${t('w_title')}</p>
-                            <p class="text-sm leading-relaxed text-gray-500">${t('w_desc')}</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            headContainer.style.display = 'table-header-group';
-            legendContainer.style.display = 'flex';
-            
-            const list = currentRoute.times;
-            const grouped = {};
-            list.forEach(item => {
-                let [time, mark] = item.split('|');
-                let [h, m] = time.split(':');
-                if(!grouped[h]) grouped[h] = [];
-                grouped[h].push({ m, mark });
-            });
-
-            container.innerHTML = Object.keys(grouped).sort().map(hour => `
-                <tr class="hover:bg-blue-50/50 transition-colors group relative z-10">
-                    <td class="px-6 py-4 font-black text-gray-800 text-lg border-r border-gray-100 bg-white group-hover:bg-blue-50/50">${hour}</td>
-                    <td class="px-6 py-4 flex flex-wrap gap-x-3 gap-y-3">
-                        ${grouped[hour].map(item => {
-                            let badgeHtml = '';
-                            if(item.mark) {
-                                let colorClass = getBadgeColor(item.mark);
-                                badgeHtml = `<span class="absolute -top-2 -right-2 text-[9px] ${colorClass} text-white w-[18px] h-[18px] flex items-center justify-center rounded-full shadow-sm font-black z-20 border border-white leading-none">${item.mark}</span>`;
-                            }
-                            
-                            if(isTimeValidToday(item.mark, selectedTravelDate)) {
-                                return `
-                                    <span class="relative bg-gray-100 border border-gray-200 text-gray-700 px-2.5 py-1.5 rounded-lg text-sm font-mono font-bold shadow-sm hover:bg-blue-100 hover:text-blue-800 transition-colors cursor-default select-none">
-                                        ${item.m}${badgeHtml}
-                                    </span>
-                                `;
-                            } else {
-                                return `
-                                    <span class="relative bg-gray-50 border border-dashed border-gray-200 text-gray-300 px-2.5 py-1.5 rounded-lg text-sm font-mono font-medium opacity-50 cursor-not-allowed select-none line-through" title="Not operating">
-                                        ${item.m}${badgeHtml}
-                                    </span>
-                                `;
-                            }
-                        }).join('')}
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function updateCountdown() {
-            const currentRoute = schedules[currentStationId][currentRouteIndex];
-            const countdownEl = document.getElementById('countdown');
-            const nextTimeEl = document.getElementById('next-time');
-            const countdownLabel = document.getElementById('countdown-label');
-            const timeLabel = document.getElementById('time-label');
-            const cardEl = document.getElementById('countdown-card');
-
-            if (currentRoute.isWalk) {
-                cardEl.className = "next-bus-card bg-emerald-50 rounded-2xl shadow-sm p-6 mb-6 border border-emerald-100 relative overflow-hidden transition-all duration-300";
-                countdownLabel.innerText = t('c_stat');
-                timeLabel.innerText = t('c_est');
-                countdownEl.innerText = t('c_ready');
-                countdownEl.className = "text-4xl md:text-5xl font-black text-emerald-600 mb-5 tracking-tight";
-                nextTimeEl.innerText = t('c_15m');
-                return;
-            }
-
-            const now = new Date();
-            const isToday = (selectedTravelDate.getDate() === now.getDate() && selectedTravelDate.getMonth() === now.getMonth() && selectedTravelDate.getFullYear() === now.getFullYear());
-
-            cardEl.className = "next-bus-card bg-white rounded-2xl shadow-lg p-6 mb-6 border-t-4 border-blue-600 relative overflow-hidden transition-all duration-300";
-            
-            if (isToday) {
-                countdownLabel.innerText = t('c_next');
-            } else {
-                countdownLabel.innerHTML = `${t('c_next')} <span class="ml-2 text-[10px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold">${t('c_prev')}</span>`;
-            }
-
-            timeLabel.innerText = t('c_time');
-            nextTimeEl.className = "text-3xl font-black text-gray-800 tracking-tight";
-            
-            const currentTimeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-            const list = currentRoute.times;
-            let nextBus = null;
-
-            for(let item of list) {
-                let [cleanTime, mark] = item.split('|');
-                if(cleanTime > currentTimeStr && isTimeValidToday(mark, selectedTravelDate)) {
-                    nextBus = cleanTime;
-                    break;
-                }
-            }
-
-            if(nextBus) {
-                const [nH, nM] = nextBus.split(':').map(Number);
-                const nextDate = new Date(now);
-                nextDate.setHours(nH, nM, 0);
-
-                const diff = nextDate - now;
-                const diffMin = Math.floor(diff / 1000 / 60);
-                const diffSec = Math.floor((diff / 1000) % 60);
-
-                countdownEl.innerText = `${diffMin}:${diffSec.toString().padStart(2, '0')}`;
-                countdownEl.className = "text-5xl md:text-6xl font-black text-blue-700 mb-5 tracking-tighter tabular-nums";
-                nextTimeEl.innerText = nextBus;
-            } else {
-                countdownEl.innerText = t('c_end');
-                countdownEl.className = "text-4xl font-black text-gray-300 mb-5 tracking-tight";
-                nextTimeEl.innerText = t('c_tmr');
-            }
-        }
-
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('current-time').innerText = now.toLocaleTimeString('en-US', { hour12: false });
-            const options = { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' };
-            document.getElementById('current-date').innerText = now.toLocaleDateString(currentLang === 'ja' ? 'ja-JP' : (currentLang === 'zh-CN' ? 'zh-CN' : 'en-US'), options);
-            updateCountdown();
-        }, 1000);
-
-        window.onload = () => {
-            initDate();
-            changeLanguage(currentLang);
-        };
-
-        // --- PWA 支援 (動態產生 Manifest 與 Service Worker) ---
-        const manifestJSON = {
-            name: "2026 立山黑部全線時刻表",
-            short_name: "Alpine Route",
-            description: "2026 立山黑部阿爾卑斯路線即時時刻表與倒數",
-            start_url: location.pathname,
-            display: "standalone",
-            background_color: "#f9fafb",
-            theme_color: "#1e3a8a",
-            icons: [{
-                src: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e3a8a'><path d='M12 3l-9 15h18z'/></svg>",
-                sizes: "192x192",
-                type: "image/svg+xml"
-            }, {
-                src: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e3a8a'><path d='M12 3l-9 15h18z'/></svg>",
-                sizes: "512x512",
-                type: "image/svg+xml"
-            }]
-        };
-        const manifestBlob = new Blob([JSON.stringify(manifestJSON)], { type: 'application/manifest+json' });
-        const link = document.createElement('link');
-        link.rel = 'manifest';
-        link.href = URL.createObjectURL(manifestBlob);
-        document.head.appendChild(link);
-
-        if ('serviceWorker' in navigator) {
-            const swCode = `
-                const CACHE_NAME = 'tateyama-cache-v2';
-                self.addEventListener('install', (event) => {
-                    self.skipWaiting();
-                    event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(['', location.pathname, location.href])));
-                });
-                self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
-                self.addEventListener('fetch', (event) => {
-                    event.respondWith(caches.match(event.request).then((r) => r || fetch(event.request)).catch(() => caches.match(location.pathname)));
-                });
-            `;
-            navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode], { type: 'application/javascript' })));
-        }
-    </script>
+    <script src="i18n.js"></script>
+    <script src="schedules.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
