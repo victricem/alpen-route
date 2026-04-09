@@ -21,10 +21,8 @@ function changeLanguage(lang) {
         }
     });
 
-    // 重新渲染動態區塊
-    renderRouteButtons();
-    renderTimetable();
-    updateCountdown();
+    // 重新渲染動態區塊 (統一交給 onRouteChange 處理，確保所有文字都更新到)
+    onRouteChange(currentRouteIndex);
 }
 
 // --- 核心日期判斷邏輯 ---
