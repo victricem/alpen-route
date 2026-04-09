@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026 立山黑部全線即時時刻表</title>
+    
+    <!-- PWA & iOS Meta Tags -->
+    <meta name="theme-color" content="#1e3a8a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="立山時刻表">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e3a8a'><path d='M12 3l-9 15h18z'/></svg>">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .bg-alpine { background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #3b82f6 100%); }
+        .next-bus-card { animation: pulse-subtle 3s infinite; }
+        @keyframes pulse-subtle {
+            0%, 100% { transform: translateY(0); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+            50% { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        }
+        /* Hide scrollbar for clean UI */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-alpine text-white p-6 shadow-lg sticky top-0 z-50 pt-safe">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-black tracking-tight">立山黑部時刻表</h1>
+                <p class="text-blue-200 text-xs mt-1 font-semibold tracking-wider uppercase">Alpine Route 2026</p>
+            </div>
+            <div class="text-right bg-black/20 px-3 py-2 rounded-lg backdrop-blur-sm border border-white/10">
+                <div id="current-time" class="text-xl font-mono font-bold tracking-widest">--:--:--</div>
+                <div id="current-date" class="text-[10px] text-blue-100 uppercase tracking-widest mt-0.5"></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-md mx-auto p-4 pb-24">
+        
+        <!-- Travel Date Selector -->
+        <div class="mb-4 bg-white p-3.5 rounded-xl shadow-sm border-2 border-indigo-100 flex justify-between items-center">
+            <label class="text-xs font-bold text-indigo-800 flex items-center tracking-wider">
+                <svg class="w-4 h-4 mr-1.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                預定乘車日期
+            </label>
+            <input type="date" id="travel-date" class="text-sm font-black text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-lg outline-none px-3 py-1.5 cursor-pointer hover:bg-indigo-100 transition-colors" onchange="onDateChange()">
+        </div>
+
+        <!-- Station Selector -->
+        <div class="mb-5 relative">
+            <label class="block text-gray-500 text-xs font-bold mb-2 uppercase tracking-wider flex items-center">
+                <svg class="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                選擇當前所在車站
+            </label>
+            <div class="relative">
+                <select id="station-select" onchange="onStationChange()" class="block appearance-none w-full bg-white border-2 border-blue-500 text-blue-900 py-3.5 px-4 pr-8 rounded-xl font-bold shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all text-lg cursor-pointer">
+                    <option value="ogizawa">🚉 扇澤站 (Ogizawa)</option>
+                    <option value="kurobe_dam">🌊 黑部水庫 (Kurobe Dam)</option>
+                    <option value="kurobeko">🛳️ 黑部湖 (Kurobeko)</option>
+                    <option value="kurobedaira">⛰️ 黑部平 (Kurobedaira)</option>
+                    <option value="daikanbo">🔭 大觀峰 (Daikanbo)</option>
+                    <option value="murodo">❄️ 室堂 (Murodo) - 雪之大谷</option>
+                    <option value="bijodaira">🌲 美女平 (Bijodaira)</option>
+                    <option value="tateyama">🚉 立山車站 (Tateyama)</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-blue-500">
+                    <svg class="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Route Buttons (Dynamic) -->
+        <div id="route-buttons" class="flex gap-2 mb-6">
+            <!-- JS Injected Buttons -->
+        </div>
+
+        <!-- Next Departure Countdown -->
+        <div id="countdown-card" class="next-bus-card bg-white rounded-2xl shadow-lg p-6 mb-6 border-t-4 border-blue-600 relative overflow-hidden transition-all duration-300">
+            <!-- Decorative background element -->
+            <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-50 rounded-full opacity-50 pointer-events-none"></div>
+            
+            <h2 class="text-gray-500 text-sm font-bold mb-3 flex items-center uppercase tracking-wide">
+                <svg class="w-4 h-4 mr-1.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span id="countdown-label">下一班車發車倒數</span>
+            </h2>
+            <div id="countdown" class="text-5xl md:text-6xl font-black text-blue-700 mb-5 tracking-tighter">
+                --:--
+            </div>
+            <div class="flex justify-between items-end border-t border-gray-100 pt-4">
+                <div>
+                    <span class="text-gray-400 text-xs font-bold block mb-1 uppercase tracking-widest" id="time-label">發車時間</span>
+                    <span id="next-time" class="text-3xl font-black text-gray-800 tracking-tight">--:--</span>
+                </div>
+                <div class="text-right flex flex-col items-end">
+                    <span id="route-vehicle" class="bg-blue-100 text-blue-800 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm border border-blue-200">
+                        --
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Timetable -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden relative">
+            <div class="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center relative z-40">
+                <h3 id="timetable-title" class="font-bold text-gray-800 flex items-center">
+                    <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    完整時刻表
+                </h3>
+                <span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-1 rounded font-bold tracking-wider">2026</span>
+            </div>
+            
+            <!-- Legend for special markers -->
+            <div id="timetable-legend" class="px-4 py-3 bg-white border-b border-gray-100 text-[10px] text-gray-600 flex flex-col gap-2 relative z-40">
+                <div class="flex flex-wrap gap-x-3 gap-y-2">
+                    <span class="flex items-center"><span class="w-4 h-4 rounded-full bg-red-500 text-white flex items-center justify-center mr-1 scale-90 font-bold">●</span> 指定日</span>
+                    <span class="flex items-center"><span class="w-4 h-4 rounded-full bg-pink-500 text-white flex items-center justify-center mr-1 scale-90 font-bold">◇</span> 旺季</span>
+                    <span class="flex items-center"><span class="w-4 h-4 rounded-full bg-purple-500 text-white flex items-center justify-center mr-1 scale-90 font-bold">※</span> 特定假日</span>
+                    <span class="flex items-center"><span class="w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center mr-1 scale-90 font-bold">▽</span> 平日限定</span>
+                    <span class="flex items-center"><span class="w-4 h-4 rounded-full bg-orange-500 text-white flex items-center justify-center mr-1 scale-90 font-bold">▼</span> 假日限定</span>
+                </div>
+                <div class="text-[9px] text-gray-400 bg-gray-50 p-2.5 rounded-lg leading-relaxed border border-gray-100">
+                    <strong class="text-gray-500 block mb-0.5">2026 特殊運轉日曆：</strong>
+                    <span class="text-red-400">●</span> 5/2-5, 7/18-19, 8/11-15, 9/19-22, 10/10-11<br>
+                    <span class="text-pink-400">◇</span> 4/15-5/15 及上方全部指定日<br>
+                    <span class="text-purple-400">※</span> 4/15-5/31, 7/11-8/31, 9/1-11/30 期間內的週末與日本國定假日<br>
+                    <span class="text-indigo-400 font-bold block mt-1">💡 系統會依據您選擇的乘車日期，自動將當天沒有營運的班次變成灰色並劃上刪除線。</span>
+                </div>
+            </div>
+
+            <!-- Table Container -->
+            <div class="max-h-80 overflow-y-auto bg-white relative">
+                <table class="w-full text-left border-collapse" id="timetable-table">
+                    <thead id="timetable-head" class="relative z-30">
+                        <tr class="text-xs uppercase text-gray-600 bg-gray-100 sticky top-0 shadow-md">
+                            <th class="px-6 py-3 font-bold w-20 bg-gray-100">時 (H)</th>
+                            <th class="px-6 py-3 font-bold bg-gray-100">發車分鐘 (Minutes)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="timetable-body" class="divide-y divide-gray-100 relative z-0">
+                        <!-- JS injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer Menu -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-2 flex justify-around items-center md:hidden pb-safe z-50">
+        <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center p-2 text-blue-600">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+            <span class="text-[10px] font-bold">置頂</span>
+        </a>
+        <button onclick="window.location.reload()" class="flex flex-col items-center p-2 text-gray-500 hover:text-blue-600 transition-colors">
+            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            <span class="text-[10px] font-bold">重新對時</span>
+        </button>
+    </nav>
+
+    <script>
+        // 2026 立山黑部全線時刻表 
+        const schedules = {
+            'tateyama': [
+                { dirId: 'east', dirName: '往 美女平/室堂', subtitle: '順行・東向', vehicle: '立山登山纜車', times: ['06:40|◇', '07:00', '07:20', '07:40', '08:00', '08:20', '08:40', '09:00', '09:20', '09:40', '10:00', '10:20', '10:40', '11:00', '11:20', '11:40', '12:00', '12:20', '12:40', '13:00', '13:20', '13:40', '14:00', '14:20', '14:40', '15:00', '15:20', '15:40', '16:00'] },
+                { dirId: 'west', dirName: '往 電鐵富山', subtitle: '下山', vehicle: '富山地方鐵道', times: ['07:27|▽', '07:47|▼', '08:07|▽', '08:27|▼', '08:47|▽', '09:07|▼', '09:17|▽', '09:32|▼', '09:47|▽', '10:03|▼', '10:27|▽', '10:38|▼', '10:47|▽', '11:00|▼', '11:27|▽', '11:45|▼', '11:47|▽', '12:00|▼', '12:27|▽', '12:45|▼', '12:47|▽', '13:00|▼', '13:27|▽', '13:45|▼', '13:47|▽', '14:00|▼', '14:27|▽', '14:45|▼', '14:47|▽', '15:00|▼', '15:27|▽', '15:33|▼', '15:47|▽', '16:06|▼', '16:27|▽', '16:35|▼', '16:47|▽', '17:05|▼', '17:27|▽', '17:40', '18:07|▽', '18:13|▼', '18:43|▽', '18:57|▼', '19:13|▽', '19:31|▼', '19:43|▽', '19:57|▼', '20:13|▽', '20:31|▼', '20:43|▽'] }
+            ],
+            'bijodaira': [
+                { dirId: 'east', dirName: '往 室堂/大觀峰', subtitle: '順行・東向', vehicle: '立山高原巴士', times: ['07:00|◇', '07:40', '08:10', '08:20', '08:50', '09:00', '09:30', '09:40', '10:10', '10:20', '10:50', '11:00', '11:30', '11:40', '12:30', '12:40', '13:10', '13:20', '13:50', '14:00', '14:30', '14:40', '15:10', '15:20', '16:00', '16:30', '16:40'] },
+                { dirId: 'west', dirName: '往 立山車站', subtitle: '逆行・西向', vehicle: '立山登山纜車', times: ['07:20', '07:40', '08:00', '08:20', '08:40', '09:00', '09:10', '09:20', '09:40', '10:00', '10:10', '10:20', '10:40', '10:50', '11:00', '11:20', '11:30', '11:40', '12:00', '12:10', '12:20', '12:40', '12:50', '13:00', '13:20', '13:40', '13:50', '14:00', '14:20', '14:30', '14:40', '15:00', '15:10', '15:20', '15:40', '15:50', '16:00', '16:20', '16:30', '16:40', '17:00', '17:10', '17:20', '18:00|◇'] }
+            ],
+            'murodo': [
+                { dirId: 'east', dirName: '往 大觀峰/扇澤', subtitle: '順行・東向', vehicle: '立山隧道無軌電車', times: ['08:15', '08:45', '09:15', '09:45', '10:15', '10:45', '11:15', '11:45', '12:15', '12:45', '13:15', '13:45', '14:15', '14:45', '15:15', '15:45', '16:10', '16:30'] },
+                { dirId: 'west', dirName: '往 美女平/立山', subtitle: '逆行・西向', vehicle: '立山高原巴士', times: ['08:10', '08:40', '09:20', '10:00', '10:40', '11:20', '12:00', '13:00', '13:40', '14:20', '15:00', '15:40', '16:20', '17:00|◇'] }
+            ],
+            'daikanbo': [
+                { dirId: 'east', dirName: '往 黑部平/扇澤', subtitle: '順行・東向', vehicle: '立山架空索道', times: ['08:30', '08:50', '09:10', '09:30', '09:50', '10:10', '10:30', '10:50', '11:10', '11:30', '11:50', '12:20', '12:40', '13:00', '13:20', '13:40', '14:00', '14:20', '14:40', '15:00', '15:20', '15:30', '15:50', '16:15', '16:30', '16:45'] },
+                { dirId: 'west', dirName: '往 室堂/立山', subtitle: '逆行・西向', vehicle: '立山隧道無軌電車', times: ['07:45', '08:15|●', '08:45', '09:15', '09:45', '10:15', '10:45', '11:15', '11:45', '12:15', '12:45', '13:15', '13:45', '14:15', '14:45', '15:15', '15:45', '16:00', '16:30'] }
+            ],
+            'kurobedaira': [
+                { dirId: 'east', dirName: '往 黑部湖/扇澤', subtitle: '順行・東向', vehicle: '黑部登山纜車', times: ['08:50', '09:10', '09:30', '09:50', '10:10', '10:30', '10:50', '11:10', '11:30', '12:00', '12:20', '12:40', '13:00', '13:20', '13:40', '14:00', '14:20', '14:40', '15:00', '15:20', '15:40', '16:00', '16:30', '16:45', '17:00'] },
+                { dirId: 'west', dirName: '往 大觀峰/立山', subtitle: '逆行・西向', vehicle: '立山架空索道', times: ['07:30', '08:10|●', '08:30', '08:50', '09:10', '09:30', '09:50', '10:10', '10:30', '10:50', '11:10', '11:30', '11:50', '12:20', '12:40', '13:00', '13:20', '13:40', '14:00', '14:20', '14:40', '15:00', '15:30', '15:50', '16:15'] }
+            ],
+            'kurobeko': [
+                { dirId: 'east', dirName: '往 黑部水庫/扇澤', subtitle: '順行・東向', vehicle: '徒步約 15 分鐘', isWalk: true, times: [] },
+                { dirId: 'west', dirName: '往 黑部平/立山', subtitle: '逆行・西向', vehicle: '黑部登山纜車', times: ['07:10', '07:50|●', '08:10', '08:30', '08:50', '09:10', '09:30', '09:50', '10:10', '10:30', '10:50', '11:10', '11:30', '12:00', '12:20', '12:40', '13:00', '13:20', '13:40', '14:00', '14:20', '14:40', '15:00', '15:20', '15:40', '16:00'] }
+            ],
+            'kurobe_dam': [
+                { dirId: 'east', dirName: '往 扇澤', subtitle: '順行・東向', vehicle: '關電隧道電動巴士', times: ['07:05|●', '07:35|●', '08:05', '08:35', '09:05', '09:35', '10:05', '10:35', '11:05', '11:35', '12:05', '12:35', '13:05', '13:35', '14:05', '14:35', '15:05', '15:35', '16:05', '16:35', '17:05', '17:35'] },
+                { dirId: 'west', dirName: '往 黑部湖/立山', subtitle: '逆行・西向', vehicle: '徒步約 15 分鐘', isWalk: true, times: [] }
+            ],
+            'ogizawa': [
+                { dirId: 'east', dirName: '往 信濃大町/長野', subtitle: '下山', vehicle: '路線/特急巴士', times: ['07:05', '07:45', '09:00', '09:30|※', '09:55', '10:30', '10:55|※', '11:25', '12:00|※', '12:30', '13:40', '14:30', '14:40|※', '15:15', '15:35|※', '16:10', '16:35', '17:00', '17:55'] },
+                { dirId: 'west', dirName: '往 黑部水庫/立山', subtitle: '逆行・西向', vehicle: '關電隧道電動巴士', times: ['06:30', '07:00|●', '07:30', '08:00', '08:30', '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'] }
+            ]
+        };
+
+        // --- 核心日期判斷邏輯 ---
+        const holidays2026 = ['04-29', '05-03', '05-04', '05-05', '05-06', '07-20', '08-11', '09-21', '09-22', '09-23', '10-12', '11-03', '11-23'];
+        const specifiedDays = ['05-02','05-03','05-04','05-05','07-18','07-19','08-11','08-12','08-13','08-14','08-15','09-19','09-20','09-21','09-22','10-10','10-11'];
+
+        function isWeekendOrHoliday(dateObj) {
+            const day = dateObj.getDay();
+            if (day === 0 || day === 6) return true;
+            const mmdd = String(dateObj.getMonth() + 1).padStart(2, '0') + '-' + String(dateObj.getDate()).padStart(2, '0');
+            return holidays2026.includes(mmdd);
+        }
+
+        function isTimeValidToday(mark, dateObj) {
+            if (!mark) return true; 
+            
+            const mmdd = String(dateObj.getMonth() + 1).padStart(2, '0') + '-' + String(dateObj.getDate()).padStart(2, '0');
+            const m = dateObj.getMonth() + 1;
+            const d = dateObj.getDate();
+
+            switch(mark) {
+                case '●': 
+                    return specifiedDays.includes(mmdd);
+                case '◇': 
+                    if ((m === 4 && d >= 15) || (m === 5 && d <= 15)) return true;
+                    return specifiedDays.includes(mmdd);
+                case '※': 
+                    if (!isWeekendOrHoliday(dateObj)) return false;
+                    if ((m === 4 && d >= 15) || m === 5) return true;
+                    if ((m === 7 && d >= 11) || m === 8) return true;
+                    if (m >= 9 && m <= 11) return true;
+                    return false;
+                case '▽': // ▽ 符號定義為：平日限定運行
+                    return !isWeekendOrHoliday(dateObj);
+                case '▼': // ▼ 符號定義為：土日祝(假日)限定運行
+                    return isWeekendOrHoliday(dateObj);
+                default: 
+                    return true;
+            }
+        }
+
+        let currentStationId = 'ogizawa';
+        let currentRouteIndex = 0;
+        let selectedTravelDate = new Date();
+
+        function initDate() {
+            const now = new Date();
+            const routeOpenDate = new Date('2026-04-15T00:00:00');
+            if (now < routeOpenDate) {
+                selectedTravelDate = routeOpenDate;
+            }
+            const yyyy = selectedTravelDate.getFullYear();
+            const mm = String(selectedTravelDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(selectedTravelDate.getDate()).padStart(2, '0');
+            document.getElementById('travel-date').value = `${yyyy}-${mm}-${dd}`;
+        }
+
+        function onDateChange() {
+            const inputDate = document.getElementById('travel-date').value;
+            if (inputDate) {
+                const [y, m, d] = inputDate.split('-');
+                selectedTravelDate = new Date(y, m - 1, d);
+                renderTimetable();
+                updateCountdown();
+            }
+        }
+
+        function onStationChange() {
+            currentStationId = document.getElementById('station-select').value;
+            currentRouteIndex = 0;
+            renderRouteButtons();
+            onRouteChange(0);
+        }
+
+        function renderRouteButtons() {
+            const container = document.getElementById('route-buttons');
+            const routes = schedules[currentStationId];
+            
+            container.innerHTML = routes.map((route, index) => {
+                const isActive = index === currentRouteIndex;
+                const activeClass = "bg-blue-600 text-white border-blue-600 shadow-md ring-2 ring-blue-300 ring-offset-1";
+                const inactiveClass = "bg-white text-gray-500 border-gray-200 hover:bg-gray-50 hover:border-gray-300";
+                
+                return `
+                    <button onclick="onRouteChange(${index})" class="flex-1 py-3 px-2 rounded-xl text-sm font-bold transition-all border-2 flex flex-col items-center justify-center ${isActive ? activeClass : inactiveClass}">
+                        <div class="text-[10px] ${isActive ? 'text-blue-200' : 'text-gray-400'} mb-1 font-black bg-black/10 px-2 py-0.5 rounded-full">${route.subtitle}</div>
+                        ${route.dirName}
+                        <span class="text-[10px] ${isActive ? 'text-blue-100' : 'text-gray-400'} font-normal tracking-wide inline-block mt-0.5">${route.vehicle}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function onRouteChange(index) {
+            currentRouteIndex = index;
+            renderRouteButtons();
+            
+            const currentRoute = schedules[currentStationId][currentRouteIndex];
+            const vehicleEl = document.getElementById('route-vehicle');
+            vehicleEl.innerText = currentRoute.vehicle;
+            
+            if(currentRoute.isWalk) {
+                vehicleEl.className = "bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm border border-emerald-200";
+            } else {
+                vehicleEl.className = "bg-blue-100 text-blue-800 px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm border border-blue-200";
+            }
+
+            document.getElementById('timetable-title').innerHTML = `
+                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                時刻表 (${currentRoute.dirName})
+            `;
+
+            renderTimetable();
+            updateCountdown();
+        }
+
+        function getBadgeColor(mark) {
+            if (mark === '●') return 'bg-red-500';
+            if (mark === '◇') return 'bg-pink-500';
+            if (mark === '※') return 'bg-purple-500';
+            if (mark === '▽') return 'bg-blue-500';
+            if (mark === '▼') return 'bg-orange-500';
+            return 'bg-gray-500';
+        }
+
+        function renderTimetable() {
+            const container = document.getElementById('timetable-body');
+            const headContainer = document.getElementById('timetable-head');
+            const legendContainer = document.getElementById('timetable-legend');
+            const currentRoute = schedules[currentStationId][currentRouteIndex];
+
+            if (currentRoute.isWalk) {
+                headContainer.style.display = 'none';
+                legendContainer.style.display = 'none';
+                container.innerHTML = `
+                    <tr>
+                        <td colspan="2" class="px-6 py-10 text-center text-gray-500">
+                            <svg class="w-14 h-14 mx-auto mb-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 5a2 2 0 11-4 0 2 2 0 014 0zM7 11.5l3 3V22M17 11.5l-3 3V22M12 14.5L12 22"></path></svg>
+                            <p class="font-bold text-lg text-gray-800 mb-1">此區段為徒步專區</p>
+                            <p class="text-sm leading-relaxed text-gray-500">
+                                兩站之間距離約 600 公尺<br>
+                                <span class="text-emerald-600 font-bold">無須等待班次，隨時可出發！</span>
+                            </p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            headContainer.style.display = 'table-header-group';
+            legendContainer.style.display = 'flex';
+            
+            const list = currentRoute.times;
+            const grouped = {};
+            list.forEach(item => {
+                let [time, mark] = item.split('|');
+                let [h, m] = time.split(':');
+                if(!grouped[h]) grouped[h] = [];
+                grouped[h].push({ m, mark });
+            });
+
+            container.innerHTML = Object.keys(grouped).sort().map(hour => `
+                <tr class="hover:bg-blue-50/50 transition-colors group relative z-10">
+                    <td class="px-6 py-4 font-black text-gray-800 text-lg border-r border-gray-100 bg-white group-hover:bg-blue-50/50">${hour}</td>
+                    <td class="px-6 py-4 flex flex-wrap gap-x-3 gap-y-3">
+                        ${grouped[hour].map(item => {
+                            let badgeHtml = '';
+                            if(item.mark) {
+                                let colorClass = getBadgeColor(item.mark);
+                                badgeHtml = `<span class="absolute -top-2 -right-2 text-[9px] ${colorClass} text-white w-[18px] h-[18px] flex items-center justify-center rounded-full shadow-sm font-black z-20 border border-white leading-none">${item.mark}</span>`;
+                            }
+                            
+                            const isValidToday = isTimeValidToday(item.mark, selectedTravelDate);
+                            
+                            if(isValidToday) {
+                                return `
+                                    <span class="relative bg-gray-100 border border-gray-200 text-gray-700 px-2.5 py-1.5 rounded-lg text-sm font-mono font-bold shadow-sm hover:bg-blue-100 hover:text-blue-800 transition-colors cursor-default select-none">
+                                        ${item.m}
+                                        ${badgeHtml}
+                                    </span>
+                                `;
+                            } else {
+                                return `
+                                    <span class="relative bg-gray-50 border border-dashed border-gray-200 text-gray-300 px-2.5 py-1.5 rounded-lg text-sm font-mono font-medium opacity-50 cursor-not-allowed select-none line-through" title="此班次本日無營運">
+                                        ${item.m}
+                                        ${badgeHtml}
+                                    </span>
+                                `;
+                            }
+                            
+                        }).join('')}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateCountdown() {
+            const currentRoute = schedules[currentStationId][currentRouteIndex];
+            const countdownEl = document.getElementById('countdown');
+            const nextTimeEl = document.getElementById('next-time');
+            const countdownLabel = document.getElementById('countdown-label');
+            const timeLabel = document.getElementById('time-label');
+            const cardEl = document.getElementById('countdown-card');
+
+            if (currentRoute.isWalk) {
+                cardEl.className = "next-bus-card bg-emerald-50 rounded-2xl shadow-sm p-6 mb-6 border border-emerald-100 relative overflow-hidden transition-all duration-300";
+                countdownLabel.innerText = "出發狀態";
+                timeLabel.innerText = "預估時間";
+                countdownEl.innerText = "隨時出發";
+                countdownEl.className = "text-4xl md:text-5xl font-black text-emerald-600 mb-5 tracking-tight";
+                nextTimeEl.innerText = "約 15 分鐘";
+                return;
+            }
+
+            const now = new Date();
+            const isToday = (selectedTravelDate.getDate() === now.getDate() && selectedTravelDate.getMonth() === now.getMonth() && selectedTravelDate.getFullYear() === now.getFullYear());
+
+            cardEl.className = "next-bus-card bg-white rounded-2xl shadow-lg p-6 mb-6 border-t-4 border-blue-600 relative overflow-hidden transition-all duration-300";
+            
+            if (isToday) {
+                countdownLabel.innerText = "下一班車發車倒數";
+            } else {
+                countdownLabel.innerHTML = `下一班車發車倒數 <span class="ml-2 text-[10px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold">模擬預覽</span>`;
+            }
+
+            timeLabel.innerText = "發車時間";
+            nextTimeEl.className = "text-3xl font-black text-gray-800 tracking-tight";
+            
+            const currentTimeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+            const list = currentRoute.times;
+            let nextBus = null;
+
+            for(let item of list) {
+                let [cleanTime, mark] = item.split('|');
+                
+                if(cleanTime > currentTimeStr && isTimeValidToday(mark, selectedTravelDate)) {
+                    nextBus = cleanTime;
+                    break;
+                }
+            }
+
+            if(nextBus) {
+                const [nH, nM] = nextBus.split(':').map(Number);
+                const nextDate = new Date(now);
+                nextDate.setHours(nH, nM, 0);
+
+                const diff = nextDate - now;
+                const diffMin = Math.floor(diff / 1000 / 60);
+                const diffSec = Math.floor((diff / 1000) % 60);
+
+                countdownEl.innerText = `${diffMin}:${diffSec.toString().padStart(2, '0')}`;
+                countdownEl.className = "text-5xl md:text-6xl font-black text-blue-700 mb-5 tracking-tighter";
+                nextTimeEl.innerText = nextBus;
+            } else {
+                countdownEl.innerText = "今日結束";
+                countdownEl.className = "text-4xl md:text-5xl font-black text-gray-300 mb-5 tracking-tight";
+                nextTimeEl.innerText = "明日請早";
+            }
+        }
+
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('current-time').innerText = now.toLocaleTimeString('zh-TW', { hour12: false });
+            
+            const options = { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' };
+            document.getElementById('current-date').innerText = '今日: ' + now.toLocaleDateString('zh-TW', options);
+            
+            updateCountdown();
+        }, 1000);
+
+        window.onload = () => {
+            initDate();
+            onStationChange();
+            
+            const now = new Date();
+            const options = { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' };
+            document.getElementById('current-date').innerText = '今日: ' + now.toLocaleDateString('zh-TW', options);
+        };
+
+        // --- PWA 支援 (動態產生 Manifest 與 Service Worker) ---
+        const manifestJSON = {
+            name: "2026 立山黑部全線時刻表",
+            short_name: "立山時刻表",
+            description: "2026 立山黑部阿爾卑斯路線即時時刻表與倒數",
+            start_url: location.pathname,
+            display: "standalone",
+            background_color: "#f9fafb",
+            theme_color: "#1e3a8a",
+            icons: [{
+                src: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e3a8a'><path d='M12 3l-9 15h18z'/></svg>",
+                sizes: "192x192",
+                type: "image/svg+xml"
+            }, {
+                src: "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%231e3a8a'><path d='M12 3l-9 15h18z'/></svg>",
+                sizes: "512x512",
+                type: "image/svg+xml"
+            }]
+        };
+        const manifestBlob = new Blob([JSON.stringify(manifestJSON)], { type: 'application/manifest+json' });
+        const manifestURL = URL.createObjectURL(manifestBlob);
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = manifestURL;
+        document.head.appendChild(link);
+
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                const CACHE_NAME = 'tateyama-cache-v1';
+                self.addEventListener('install', (event) => {
+                    self.skipWaiting();
+                    event.waitUntil(
+                        caches.open(CACHE_NAME).then((cache) => {
+                            return cache.addAll(['', location.pathname, location.href]);
+                        })
+                    );
+                });
+                self.addEventListener('activate', (event) => {
+                    event.waitUntil(self.clients.claim());
+                });
+                self.addEventListener('fetch', (event) => {
+                    event.respondWith(
+                        caches.match(event.request).then((response) => {
+                            return response || fetch(event.request);
+                        }).catch(() => caches.match(location.pathname))
+                    );
+                });
+            `;
+            const swBlob = new Blob([swCode], { type: 'application/javascript' });
+            const swURL = URL.createObjectURL(swBlob);
+            
+            navigator.serviceWorker.register(swURL).then((registration) => {
+                console.log('PWA 離線支援已啟動 (ServiceWorker registered)');
+            }).catch((err) => {
+                console.log('PWA 初始化失敗: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
