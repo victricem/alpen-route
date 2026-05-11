@@ -9,6 +9,8 @@ const i18n = {
         st_bijodaira: "🌲 美女平 (Bijodaira)", st_tateyama: "🚉 立山車站 (Tateyama)",
         th_h: "時 (H)", th_m: "發車分鐘 (Minutes)", f_top: "置頂", f_refresh: "重新對時",
         l_spec: "指定日", l_peak: "旺季", l_holi: "特定假日", l_wd: "平日限定", l_we: "假日限定",
+        // --- 🌟 新增：特急翻譯 🌟 ---
+        l_exp: "特急列車 (需另付特急料金)", exp: "特急",
         l_cal: "2026 特殊運轉日曆：", l_d1: "5/2-5, 7/18-19, 8/11-15, 9/19-22, 10/10-11",
         l_d2: "4/15-5/15 及上方全部指定日", l_d3: "特定期間內的週末與日本國定假日",
         l_hint: "💡 系統會依據您選擇的乘車日期，自動將當天沒有營運的班次變成灰色並劃上刪除線。",
@@ -36,6 +38,8 @@ const i18n = {
         st_bijodaira: "🌲 美女平 (Bijodaira)", st_tateyama: "🚉 立山车站 (Tateyama)",
         th_h: "时 (H)", th_m: "发车分钟 (Minutes)", f_top: "置顶", f_refresh: "重新对时",
         l_spec: "指定日", l_peak: "旺季", l_holi: "特定假日", l_wd: "平日限定", l_we: "假日限定",
+        // --- 🌟 新增：特急翻译 🌟 ---
+        l_exp: "特急列车 (需另付特急料金)", exp: "特急",
         l_cal: "2026 特殊运转日历：", l_d1: "5/2-5, 7/18-19, 8/11-15, 9/19-22, 10/10-11",
         l_d2: "4/15-5/15 及上方全部指定日", l_d3: "特定期间内的周末与日本国定假日",
         l_hint: "💡 系统会依据您选择的乘车日期，自动将当天没有运营的班次变成灰色并划上删除线。",
@@ -63,6 +67,8 @@ const i18n = {
         st_bijodaira: "🌲 美女平 (Bijodaira)", st_tateyama: "🚉 立山駅 (Tateyama)",
         th_h: "時 (H)", th_m: "発車分 (Minutes)", f_top: "トップ", f_refresh: "更新",
         l_spec: "指定日", l_peak: "繁忙期", l_holi: "特定休日", l_wd: "平日限定", l_we: "休日限定",
+        // --- 🌟 新增：特急翻譯 🌟 ---
+        l_exp: "特急列車（特急料金が別途必要）", exp: "特急",
         l_cal: "2026年 特別運行カレンダー：", l_d1: "5/2-5, 7/18-19, 8/11-15, 9/19-22, 10/10-11",
         l_d2: "4/15-5/15 および上記全指定日", l_d3: "特定期間の土日祝",
         l_hint: "💡 選択された乗車日に応じて、運休となる便は自動的にグレーアウト（取消線）されます。",
@@ -90,6 +96,8 @@ const i18n = {
         st_bijodaira: "🌲 Bijodaira", st_tateyama: "🚉 Tateyama Sta.",
         th_h: "Hour", th_m: "Minutes", f_top: "Top", f_refresh: "Refresh",
         l_spec: "Specified", l_peak: "Peak", l_holi: "Holidays", l_wd: "Weekdays", l_we: "Weekends",
+        // --- 🌟 新增：特急翻譯 🌟 ---
+        l_exp: "Ltd. Express (Extra fee req.)", exp: "LTD.",
         l_cal: "2026 Special Calendar:", l_d1: "5/2-5, 7/18-19, 8/11-15, 9/19-22, 10/10-11",
         l_d2: "4/15-5/15 & all specified days above", l_d3: "Weekends/Holidays in specific periods",
         l_hint: "💡 The system automatically grays out canceled services based on your selected date.",
