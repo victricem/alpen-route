@@ -158,7 +158,6 @@ function renderTimetable() {
     const list = currentRoute.times;
     const grouped = {};
     
-    // 修正：支援拆解第三個參數 (exp)
     list.forEach(item => {
         let [time, mark, exp] = item.split('|');
         let [h, m] = time.split(':');
@@ -166,7 +165,6 @@ function renderTimetable() {
         grouped[h].push({ m, mark, exp });
     });
 
-    // 修正：移除 tr 的 relative z-10，加大 td 的 gap-y
     container.innerHTML = Object.keys(grouped).sort().map(hour => `
         <tr class="hover:bg-blue-50/50 transition-colors group">
             <td class="px-6 py-4 font-black text-gray-800 text-lg border-r border-gray-100 bg-white group-hover:bg-blue-50/50">${hour}</td>
@@ -178,21 +176,23 @@ function renderTimetable() {
                         badgeHtml = `<span class="absolute -top-2 -right-2 text-[9px] ${colorClass} text-white w-[18px] h-[18px] flex items-center justify-center rounded-full shadow-sm font-black z-20 border border-white leading-none">${item.mark}</span>`;
                     }
                     
-                    // 新增：特急標籤渲染邏輯
+                    // 【修正】使用 scale-[0.8] 強制縮小，並更改定位點 origin-top-left
                     let expHtml = '';
                     if(item.exp === 'exp') {
-                        expHtml = `<span class="absolute -top-3.5 -left-2 bg-red-600 text-white text-[8px] px-1 py-0.5 rounded shadow-sm font-black z-20 border border-white whitespace-nowrap tracking-widest">特急</span>`;
+                        expHtml = `<span class="absolute -top-2.5 -left-2.5 bg-red-600 text-white text-[10px] px-1 py-0.5 rounded shadow-sm font-black z-20 border border-white whitespace-nowrap scale-[0.8] origin-top-left leading-none">特急</span>`;
                     }
                     
                     if(isTimeValidToday(item.mark, selectedTravelDate)) {
+                        // 【修正】加入 inline-block min-w-[46px] text-center，並調整 px 為 px-1
                         return `
-                            <span class="relative bg-gray-100 border border-gray-200 text-gray-700 px-2.5 py-1.5 rounded-lg text-sm font-mono font-bold shadow-sm hover:bg-blue-100 hover:text-blue-800 transition-colors cursor-default select-none">
+                            <span class="relative inline-block min-w-[46px] text-center bg-gray-100 border border-gray-200 text-gray-700 px-1 py-1.5 rounded-lg text-sm font-mono font-bold shadow-sm hover:bg-blue-100 hover:text-blue-800 transition-colors cursor-default select-none">
                                 ${item.m}${badgeHtml}${expHtml}
                             </span>
                         `;
                     } else {
+                        // 【修正】失效按鈕也套用同樣的寬度與對齊設定
                         return `
-                            <span class="relative bg-gray-50 border border-dashed border-gray-200 text-gray-300 px-2.5 py-1.5 rounded-lg text-sm font-mono font-medium opacity-50 cursor-not-allowed select-none line-through" title="Not operating">
+                            <span class="relative inline-block min-w-[46px] text-center bg-gray-50 border border-dashed border-gray-200 text-gray-300 px-1 py-1.5 rounded-lg text-sm font-mono font-medium opacity-50 cursor-not-allowed select-none line-through" title="Not operating">
                                 ${item.m}${badgeHtml}${expHtml}
                             </span>
                         `;
@@ -239,7 +239,6 @@ function updateCountdown() {
     const list = currentRoute.times;
     let nextBus = null;
 
-    // 修正：支援拆解第三個參數 (exp)
     for(let item of list) {
         let [cleanTime, mark, exp] = item.split('|');
         if(cleanTime > currentTimeStr && isTimeValidToday(mark, selectedTravelDate)) {
