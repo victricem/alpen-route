@@ -4,6 +4,16 @@ let currentStationId = 'ogizawa';
 let currentRouteIndex = 0;
 let selectedTravelDate = new Date();
 
+// --- 🌟 新增：強制取得日本標準時間 (JST) 🌟 ---
+function getJapanTime() {
+    // 取得當下時間
+    const localNow = new Date();
+    // 轉換為日本時區的字串 (例如："5/11/2026, 4:21:21 PM")
+    const jstString = localNow.toLocaleString('en-US', { timeZone: 'Asia/Tokyo' });
+    // 將該字串轉回 Date 物件，這樣 getHours(), getMinutes() 取出來的就會是日本的數字
+    return new Date(jstString);
+}
+
 function t(key) {
     return i18n[currentLang][key] || key;
 }
@@ -13,7 +23,6 @@ function changeLanguage(lang) {
     localStorage.setItem('alpine_lang', lang);
     document.getElementById('lang-select').value = lang;
     
-    // 更新靜態 HTML 的語系
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if(i18n[lang] && i18n[lang][key]) {
@@ -21,7 +30,6 @@ function changeLanguage(lang) {
         }
     });
 
-    // 重新渲染動態區塊
     onRouteChange(currentRouteIndex);
 }
 
@@ -55,10 +63,13 @@ function isTimeValidToday(mark, dateObj) {
 }
 
 function initDate() {
-    const now = new Date();
+    // 🌟 修正：使用日本時間
+    const now = getJapanTime();
     const routeOpenDate = new Date('2026-04-15T00:00:00');
     if (now < routeOpenDate) {
         selectedTravelDate = routeOpenDate;
+    } else {
+        selectedTravelDate = now; // 讓初始選擇的日期也是日本當天
     }
     const yyyy = selectedTravelDate.getFullYear();
     const mm = String(selectedTravelDate.getMonth() + 1).padStart(2, '0');
@@ -176,21 +187,18 @@ function renderTimetable() {
                         badgeHtml = `<span class="absolute -top-2 -right-2 text-[9px] ${colorClass} text-white w-[18px] h-[18px] flex items-center justify-center rounded-full shadow-sm font-black z-20 border border-white leading-none">${item.mark}</span>`;
                     }
                     
-                    // 【修正】使用 scale-[0.8] 強制縮小，並更改定位點 origin-top-left
                     let expHtml = '';
                     if(item.exp === 'exp') {
                         expHtml = `<span class="absolute -top-2.5 -left-2.5 bg-red-600 text-white text-[10px] px-1 py-0.5 rounded shadow-sm font-black z-20 border border-white whitespace-nowrap scale-[0.8] origin-top-left leading-none">特急</span>`;
                     }
                     
                     if(isTimeValidToday(item.mark, selectedTravelDate)) {
-                        // 【修正】加入 inline-block min-w-[46px] text-center，並調整 px 為 px-1
                         return `
                             <span class="relative inline-block min-w-[46px] text-center bg-gray-100 border border-gray-200 text-gray-700 px-1 py-1.5 rounded-lg text-sm font-mono font-bold shadow-sm hover:bg-blue-100 hover:text-blue-800 transition-colors cursor-default select-none">
                                 ${item.m}${badgeHtml}${expHtml}
                             </span>
                         `;
                     } else {
-                        // 【修正】失效按鈕也套用同樣的寬度與對齊設定
                         return `
                             <span class="relative inline-block min-w-[46px] text-center bg-gray-50 border border-dashed border-gray-200 text-gray-300 px-1 py-1.5 rounded-lg text-sm font-mono font-medium opacity-50 cursor-not-allowed select-none line-through" title="Not operating">
                                 ${item.m}${badgeHtml}${expHtml}
@@ -221,7 +229,8 @@ function updateCountdown() {
         return;
     }
 
-    const now = new Date();
+    // 🌟 修正：使用日本時間進行比較
+    const now = getJapanTime();
     const isToday = (selectedTravelDate.getDate() === now.getDate() && selectedTravelDate.getMonth() === now.getMonth() && selectedTravelDate.getFullYear() === now.getFullYear());
 
     cardEl.className = "next-bus-card bg-white rounded-2xl shadow-lg p-6 mb-6 border-t-4 border-blue-600 relative overflow-hidden transition-all duration-300";
@@ -267,7 +276,8 @@ function updateCountdown() {
 }
 
 setInterval(() => {
-    const now = new Date();
+    // 🌟 修正：時鐘也一律顯示日本時間
+    const now = getJapanTime();
     document.getElementById('current-time').innerText = now.toLocaleTimeString('en-US', { hour12: false });
     const options = { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' };
     document.getElementById('current-date').innerText = now.toLocaleDateString(currentLang === 'ja' ? 'ja-JP' : (currentLang === 'zh-CN' ? 'zh-CN' : 'en-US'), options);
